@@ -54,6 +54,16 @@ class BookController {
             res.status(500).json({ message: '${erro.message} - Delete has been failed.'})
         }
     };   
+
+    static async searchByEditora (req,res) {
+        const editora = req.query.editora;
+        try{
+            const bookByEditora = await book.find({ editora: editora });
+            res.status(200).json(bookByEditora);
+        }catch(erro) {
+            res.status(500).json({ message: "${erro.message} - Search failed"});
+        }
+    }
 }
 
 export default BookController;
