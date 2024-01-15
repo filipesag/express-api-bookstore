@@ -1,4 +1,5 @@
 import book from '../models/Book.js';
+import { author } from '../models/Author.js';
 
 class BookController {
 
@@ -9,14 +10,15 @@ class BookController {
         } catch(erro) {
             res.status(500).json({ message: '${erro.message} - Request has been failed.'})
         }
-
     };
 
     static async registerBook(req, res) {
+        const newBook = req.body;
         try{
-            const newBook = await book.create(req.body);
-            res.status(201).json({ message: "Successfuly Registered", book: newBook})
-
+            const authorFound = await author.findById(newBook.autor);
+            const bookCompleted = { ...newBook, autor: { ...authorFound._doc }};
+            const bookCreated = await book.create(bookCompleted);
+            res.status(201).json({ message: "Successfuly Registered", book: bookCreated})
         } catch(erro) {
             res.status(500).json({ message: '${erro.message} - Register has been failed'});
         }
@@ -30,7 +32,6 @@ class BookController {
         } catch(erro) {
             res.status(500).json({ message: '${erro.message} - Request has been failed.'})
         }
-
     };
 
     static async updateBook (req, res) {
@@ -41,7 +42,6 @@ class BookController {
         } catch(erro) {
             res.status(500).json({ message: '${erro.message} - Request has been failed.'})
         }
-
     };
 
     
@@ -53,9 +53,7 @@ class BookController {
         } catch(erro) {
             res.status(500).json({ message: '${erro.message} - Delete has been failed.'})
         }
-    };
-
-    
+    };   
 }
 
 export default BookController;
