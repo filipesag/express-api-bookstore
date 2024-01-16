@@ -3,16 +3,16 @@ import { author } from '../models/Author.js';
 
 class BookController {
 
-    static async listBooks (req, res) {
+    static async listBooks (req, res, next) {
         try {
             const listBooks = await book.find({});
             res.status(200).json(listBooks);
         } catch(erro) {
-            res.status(500).json({ message: '${erro.message} - Request has been failed.'})
+            next(erro);
         }
-    };
+    }
 
-    static async registerBook(req, res) {
+    static async registerBook(req, res, next) {
         const newBook = req.body;
         try{
             const authorFound = await author.findById(newBook.autor);
@@ -20,48 +20,52 @@ class BookController {
             const bookCreated = await book.create(bookCompleted);
             res.status(201).json({ message: "Successfuly Registered", book: bookCreated})
         } catch(erro) {
-            res.status(500).json({ message: '${erro.message} - Register has been failed'});
+            next(erro);
         }
-    };
+    }
 
-    static async getBookById (req, res) {
+    static async getBookById (req, res, next) {
         try {
             const id = req.params.id;
             const getBookById = await book.findById(id);
-            res.status(200).json(getBookById);
+            if(getBookById !== null){
+                res.status(200).json(getBookById);
+            }else{
+                res.status(404).json({ message: "Sorry! This book does not exist." });
+            }
         } catch(erro) {
-            res.status(500).json({ message: '${erro.message} - Request has been failed.'})
+            next(erro);
         }
-    };
+    }
 
-    static async updateBook (req, res) {
+    static async updateBook (req, res, next) {
         try {
             const id = req.params.id;
             const updateBook = await book.findByIdAndUpdate(id, req.body);
-            res.status(200).json({ message: "The book has been updated."});
+            res.status(200).json({ message: "The book has been updated.", book:updateBook });
         } catch(erro) {
-            res.status(500).json({ message: '${erro.message} - Request has been failed.'})
+            next(erro);
         }
-    };
+    }
 
     
-    static async deleteBookById (req, res) {
-        try {
+    static async deleteBookById (req, res, next) {
+        try { 
             const id = req.params.id;
             const updateBook = await book.findByIdAndDelete(id);
-            res.status(200).json({ message: "The book has been deleted."});
+            res.status(200).json({ message: "The book has been deleted.", book:updateBook});
         } catch(erro) {
-            res.status(500).json({ message: '${erro.message} - Delete has been failed.'})
+            next(erro);
         }
-    };   
+    }   
 
-    static async searchByEditora (req,res) {
+    static async searchByEditora (req, res, next) {
         const editora = req.query.editora;
         try{
             const bookByEditora = await book.find({ editora: editora });
             res.status(200).json(bookByEditora);
         }catch(erro) {
-            res.status(500).json({ message: "${erro.message} - Search failed"});
+            next(erro);
         }
     }
 }
